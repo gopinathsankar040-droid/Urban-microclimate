@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Micro-Climate Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    .legend {
+      position: absolute;
+      bottom: 30px;
+      left: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      line-height: 1.6;
+    }
+    .legend strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="legend" id="legend">
+    <strong>Micro-Climate Conditions</strong>
+    ☀️ Sun<br>
+    🌧️ Rain<br>
+    💨 Wind<br>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize the map centered on a sample city
+    const map = L.map('map').setView([12.0, 79.0], 13); 
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Sample webcam/micro-climate data
+    const sampleData = [
+      {id: 1, lat: 12.001, lng: 79.002, condition: "sun", details: "Sunny, 30°C"},
+      {id: 2, lat: 12.005, lng: 79.010, condition: "rain", details: "Light rain, 25°C"},
+      {id: 3, lat: 12.010, lng: 79.015, condition: "wind", details: "Windy, 28°C"},
+      {id: 4, lat: 12.015, lng: 79.005, condition: "sun", details: "Sunny, 31°C"},
+      {id: 5, lat: 12.020, lng: 79.020, condition: "rain", details: "Moderate rain, 24°C"}
+    ];
+
+    // Marker storage
+    const markers = {};
+
+    // Function to get emoji icon for condition
+    function getIcon(condition) {
+      if(condition === "sun") return "☀️";
+      if(condition === "rain") return "🌧️";
+      if(condition === "wind") return "💨";
+      return "❓";
+    }
+
+    // Add markers to map
+    sampleData.forEach(loc => {
+      const iconEmoji = getIcon(loc.condition);
+      const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+      marker.bindPopup(`${iconEmoji} ${loc.condition}<br>${loc.details}`);
+      markers[loc.id] = marker;
+    });
+
+    // Optional: simulate live updates every 5 seconds
+    setInterval(() => {
+      sampleData.forEach(loc => {
+        // Randomly change condition for demo
+        const conditions = ["sun", "rain", "wind"];
+        loc.condition = conditions[Math.floor(Math.random() * conditions.length)];
+        loc.details = `${Math.floor(20 + Math.random()*15)}°C`;
+        const iconEmoji = getIcon(loc.condition);
+        markers[loc.id].setPopupContent(`${iconEmoji} ${loc.condition}<br>${loc.details}`);
+      });
+    }, 5000);
+  </script>
+</body>
+</html>
